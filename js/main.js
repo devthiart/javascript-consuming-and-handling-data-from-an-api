@@ -1,11 +1,4 @@
-console.log("Sending hi to a friend!");
+// CEP = Zip Code in Brazil.
+var consultingCEP = fetch('https://viacep.com.br/ws/01001000/json/');
 
-function sendMessage() {
-  console.log("Hi! How are you?");
-  console.log("I will send you a request!");
-  console.log("Request received!");
-}
-
-setTimeout(sendMessage, 5000);
-
-console.log("Bye!");
+console.log(consultingCEP);
