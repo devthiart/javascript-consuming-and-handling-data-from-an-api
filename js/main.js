@@ -4,9 +4,19 @@ const invalidCEP = '01001';
 const nonexistentCEP = '01001250';
 
 async function searchAddress(cep) {
+  var errorMessage = document.getElementById('error');
+  errorMessage.innerHTML = '';
   try {
     var consultingCEP = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
     var consultingCEPConverted = await consultingCEP.json();
+
+    var cityInput = document.getElementById('cidade');
+    var addressInput = document.getElementById('endereco');
+    var stateInput = document.getElementById('estado');
+
+    cityInput.value = consultingCEPConverted.localidade;
+    addressInput.value = consultingCEPConverted.logradouro;
+    stateInput.value = consultingCEPConverted.uf;
 
     if(consultingCEPConverted.erro) {
       throw Error('CEP does not exist.');
@@ -15,6 +25,7 @@ async function searchAddress(cep) {
     return consultingCEPConverted;
 
   } catch(error) {
+    errorMessage.innerHTML = `<p class="erro__texto">Preencha um CEP válido.</p>`
     console.log(error);
   }
 }
@@ -27,4 +38,6 @@ async function searchAddress(cep) {
 // // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
 // Promise.all(consultedCeps).then(response => console.log(response));
 
-searchAddress(validCEP);
+
+var cepInput = document.getElementById('cep');
+cepInput.addEventListener('focusout', event => searchAddress(event.target.value) );
