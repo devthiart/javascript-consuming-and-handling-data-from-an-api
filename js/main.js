@@ -1,22 +1,55 @@
 // CEP = Zip Code in Brazil.
-const validCEP = '01001000';
-const invalidCEP = '01001';
-const nonexistentCEP = '01001250';
+const CEPsToTest = {
+  'validCEP': '01001000',
+  'invalidCEP': '01001',
+  'nonexistentCEP': '01001250',
+};
+
+const addressInputs = {
+  'street': document.getElementById('endereco'),
+  'neighborhood': document.getElementById('bairro'),
+  'city': document.getElementById('cidade'),
+  'state': document.getElementById('estado'),
+}
+
+const errorMessage = document.getElementById('error');
+const cepInput = document.getElementById('cep');
+cepInput.addEventListener('focusout', event => searchAddress(event.target.value));
+
+function setAddressForm(street, neighborhood, city, state) {
+  addressInputs.street.value = street;
+  addressInputs.neighborhood.value = neighborhood
+  addressInputs.city.value = city;
+  addressInputs.state.value = state;
+}
+
+function clearAddressForm() {
+  addressInputs.street.value = '';
+  addressInputs.neighborhood.value = '';
+  addressInputs.city.value = '';
+  addressInputs.state.value = '';
+}
+
+function setErrorMessage(message) {
+  errorMessage.innerHTML = `<p class="erro__texto">${message}</p>`
+}
+
+function clearErrorMessage() {
+  errorMessage.innerHTML = '';
+}
 
 async function searchAddress(cep) {
-  var errorMessage = document.getElementById('error');
-  errorMessage.innerHTML = '';
+  clearErrorMessage();
   try {
     var consultingCEP = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
     var consultingCEPConverted = await consultingCEP.json();
 
-    var cityInput = document.getElementById('cidade');
-    var addressInput = document.getElementById('endereco');
-    var stateInput = document.getElementById('estado');
-
-    cityInput.value = consultingCEPConverted.localidade;
-    addressInput.value = consultingCEPConverted.logradouro;
-    stateInput.value = consultingCEPConverted.uf;
+    setAddressForm(
+      consultingCEPConverted.logradouro, 
+      consultingCEPConverted.bairro,
+      consultingCEPConverted.localidade,
+      consultingCEPConverted.uf
+    );
 
     if(consultingCEPConverted.erro) {
       throw Error('CEP does not exist.');
@@ -25,7 +58,8 @@ async function searchAddress(cep) {
     return consultingCEPConverted;
 
   } catch(error) {
-    errorMessage.innerHTML = `<p class="erro__texto">Preencha um CEP válido.</p>`
+    setErrorMessage('Preencha um CEP válido.');
+    clearAddressForm();
     console.log(error);
   }
 }
@@ -37,7 +71,3 @@ async function searchAddress(cep) {
 // // It can be useful for aggregating the results of multiple promises.
 // // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
 // Promise.all(consultedCeps).then(response => console.log(response));
-
-
-var cepInput = document.getElementById('cep');
-cepInput.addEventListener('focusout', event => searchAddress(event.target.value) );
